@@ -9,7 +9,7 @@ urlpatterns = [
     path('login/', loginUser, name='loginUser'),
     path('logout/', logoutUser, name='logoutUser'),
     path('list/', listInstances, name='listInstances'),
-    path('viewProfessors/', viewProfessors, name='viewProfessors'),
+    path('view/', viewProfessors, name='viewProfessors'),
     path('average/<str:professorId>/<str:moduleCode>/', avgInstance, name='avgInstance'),
     path('rate/', rateInstance, name='rateInstance'),
 ]
