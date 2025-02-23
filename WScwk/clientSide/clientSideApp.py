@@ -12,10 +12,9 @@ def register():
     data = {"username": username, "email": email, "password": password}
     response = requests.post(f"{BASE_URL}/register/", json=data)
 
-    if response.status_code == 201:
+    if handle_response(response):
         print("Registration successful!")
-    else:
-        print(f"Error: {response.json()}")
+
 
 def login(url):
     global BASE_URL, session
@@ -26,10 +25,9 @@ def login(url):
     data = {"username": username, "password": password}
     response = session.post(f"{BASE_URL}/login/", json=data)
 
-    if response.status_code == 200:
+    if handle_response(response):
         print("Login successful!")
-    else:
-        print(f"Error: {response.json()}")
+
 
 def logout():
     global session
@@ -43,39 +41,35 @@ def logout():
 
 def list_instances():
     response = session.get(f"{BASE_URL}/list/")
-    
-    if response.status_code == 200:
-        instances = response.json()
-        for instance in instances:
+    data = handle_response(response)
+
+    if data:
+        for instance in data:
             print(
                 f"Code: {instance['module__module_code']}, "
                 f"Name: {instance['module__module_name']}, "
                 f"Year: {instance['year']}, "
                 f"Semester: {instance['semester']}, "
                 f"Professors: {', '.join([prof['full_name'] for prof in instance['professors']])}"
-)
+            )
 
-    else:
-        print(f"Error: {response.json()}")
 
 def view_ratings():
     response = session.get(f"{BASE_URL}/view/")
+    data = handle_response(response)
 
-    if response.status_code == 200:
-        ratings = response.json()
-        for rating in ratings:
+    if data:
+        for rating in data:
             print(f"The rating of Professor {rating['full_name']} ({rating['prof_code']}) is {rating['star_rating']}")
-    else:
-        print(f"Error: {response.json()}")
+
 
 def average_rating(professor_id, module_code):
     response = session.get(f"{BASE_URL}/average/{professor_id}/{module_code}/")
+    data = handle_response(response)
 
-    if response.status_code == 200:
-        data = response.json()
+    if data:
         print(f"The rating of Professor {data['professor']} in module {data['module']} is {data['average_rating']}")
-    else:
-        print(f"Error: {response.json()}")
+
 
 def rate(professor_id, module_code, year, semester, rating):
     data = {
@@ -88,15 +82,9 @@ def rate(professor_id, module_code, year, semester, rating):
 
     response = session.post(f"{BASE_URL}/rate/", json=data)
 
-    print(f"Raw Response: {response.text}")  # Debugging: Print raw response
-
-    if response.status_code == 200:
+    if handle_response(response):
         print("Rating submitted successfully!")
-    else:
-        try:
-            print(f"Error: {response.json()}")
-        except requests.exceptions.JSONDecodeError:
-            print(f"Unexpected response (Not JSON): {response.text}")
+
 
 
 def main():
@@ -139,6 +127,22 @@ def main():
             break
         else:
             print("Invalid command. Try again.")
+            
+def handle_response(response):
+    try:
+        data = response.json()
+    except requests.exceptions.JSONDecodeError:
+        print(f"Unexpected response (Not JSON): {response.text}")
+        return None
+
+    if response.status_code in [200, 201]:  
+        return data
+    else:
+        error_message = data.get("error", "An unknown error occurred") 
+        print(f"Error: {error_message}")  
+        return None
+
+
 
 if __name__ == "__main__":
     main()
