@@ -89,7 +89,7 @@ def rate(professor_id, module_code, year, semester, rating):
 
 def main():
     while True:
-        print("\nAvailable commands: register, login <url>, logout, list, view, average <professor_id> <module_code>, rate <professor_id> <module_code> <year> <semester> <rating>, exit")
+        print("\nAvailable commands:\n register\n login <url>\n logout\n list\n view\n average <professor_id> <module_code>\n rate <professor_id> <module_code> <year> <semester> <rating>\n exit")
         command = input("Enter command: ").strip().split() 
 
         if not command:
@@ -120,6 +120,8 @@ def main():
         elif cmd == "rate":
             if len(args) != 5:
                 print("Usage: rate <professor_id> <module_code> <year> <semester> <rating>")
+            elif not args[4].isdigit:
+                print("Rating must be a number.")
             else:
                 rate(args[0], args[1], args[2], args[3], args[4])
         elif cmd == "exit":
@@ -129,6 +131,10 @@ def main():
             print("Invalid command. Try again.")
             
 def handle_response(response):
+    if response.status_code == 404: 
+        print("User must be logged in. Please log in using the login <url> command.")
+        return None
+    
     try:
         data = response.json()
     except requests.exceptions.JSONDecodeError:

@@ -2,14 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Professor(models.Model):
-    professor_code = models.CharField(max_length=5)
+    professor_code = models.CharField(max_length=5, unique=True)
     full_name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.full_name  
 
 class Module(models.Model):
-    module_code = models.CharField(max_length=5)
+    module_code = models.CharField(max_length=5, unique=True)
     module_name = models.CharField(max_length=100)
 
     def __str__(self):

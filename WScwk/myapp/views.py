@@ -26,6 +26,7 @@ def registerUser(request):
         return JsonResponse({"error": "Email already taken"}, status=400)
 
     user = User.objects.create_user(username=username, email=email, password=password)
+    
     return JsonResponse({"message": "User registered successfully", "user_id": user.id}, status=201)
 
 
@@ -39,6 +40,7 @@ def loginUser(request):
         return JsonResponse({"error": "Username and password are required"}, status=400)
 
     user = authenticate(username=username, password=password)
+    
     if user is not None:
         login(request, user)
         return JsonResponse({"message": "Login successful"}, status=200)
@@ -52,15 +54,9 @@ def logoutUser(request):
     return JsonResponse({"message": "Logout successful"}, status=200)
 
 
-
 def listInstances(request):
     instances = ModuleInstance.objects.select_related('module').prefetch_related('professors').values(
-        'id', 
-        'module__module_code', 
-        'module__module_name', 
-        'year', 
-        'semester'
-    )
+        'id', 'module__module_code', 'module__module_name', 'year', 'semester')
 
     for instance in instances:
         instance['professors'] = list(Professor.objects.filter(moduleinstance=instance['id']).values('id', 'full_name'))
@@ -72,6 +68,8 @@ def listInstances(request):
 
 
 def viewProfessors(request):
+    # consider a more efficient approach in which a most recent rating
+    # is stored in the professor DB and updated upon a 'rate' call
     professors = Professor.objects.all()
 
     if not professors.exists(): 
@@ -88,7 +86,7 @@ def viewProfessors(request):
         professorRatings.append({
             "prof_code": professor.professor_code,
             "full_name": professor.full_name,
-            "star_rating": starScore  # Optional star representation
+            "star_rating": starScore 
         })
 
     return JsonResponse(professorRatings, safe=False)
@@ -123,11 +121,7 @@ def avgInstance(request, professorId, moduleCode):
 def rateInstance(request):
     try:
         data = json.loads(request.body)
-        professorId = data.get("professor_id")
-        moduleCode = data.get("module_code")
-        year = data.get("year")
-        semester = data.get("semester")
-        rating = data.get("rating")
+        professorId, moduleCode, year, semester, rating = data.get("professor_id"), data.get("module_code"), data.get("year"), data.get("semester"), data.get("rating")
 
         if not all([professorId, moduleCode, year, semester, rating]):
             return JsonResponse({"error": "Missing required fields"}, status=400)
