@@ -47,7 +47,7 @@ def loginUser(request):
     else:
         return JsonResponse({"error": "Invalid username or password"}, status=401)
 
-
+@login_required
 @csrf_exempt
 def logoutUser(request):
     logout(request)
@@ -64,7 +64,7 @@ def listInstances(request):
     if not instances:
         return "No Module Instances"
 
-    return JsonResponse(list(instances), safe=False)
+    return JsonResponse(list(instances), safe=False, status=200)
 
 
 def viewProfessors(request):
@@ -72,8 +72,8 @@ def viewProfessors(request):
     # is stored in the professor DB and updated upon a 'rate' call
     professors = Professor.objects.all()
 
-    if not professors.exists(): 
-        return JsonResponse({"message": "No Professors found"}, status=404)
+    # if not professors.exists(): 
+    #     return JsonResponse({"message": "No Professors found"}, status=404)
 
     professorRatings = []
 
@@ -89,7 +89,7 @@ def viewProfessors(request):
             "star_rating": starScore 
         })
 
-    return JsonResponse(professorRatings, safe=False)
+    return JsonResponse(professorRatings, safe=False, status=200)
 
 
 
@@ -109,12 +109,12 @@ def avgInstance(request, professorId, moduleCode):
             "professor": professor.full_name,
             "module": module.module_name,
             "average_rating": starScore
-        })
+        }, status=200)
 
     except Professor.DoesNotExist:
-        return JsonResponse({"error": "Professor not found"}, status=404)
+        return JsonResponse({"error": "Professor not found"}, status=400)
     except Module.DoesNotExist:
-        return JsonResponse({"error": "Module not found"}, status=404)
+        return JsonResponse({"error": "Module not found"}, status=400)
 
 @login_required
 @csrf_exempt
@@ -126,6 +126,7 @@ def rateInstance(request):
         if not all([professorId, moduleCode, year, semester, rating]):
             return JsonResponse({"error": "Missing required fields"}, status=400)
 
+        # CHECK FOR INTEGER 
         if not (1 <= rating <= 5):
             return JsonResponse({"error": "Rating must be between 1 and 5"}, status=400)
 

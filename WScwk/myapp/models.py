@@ -1,15 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
+import datetime
+
+currentYear = datetime.date.today().year
 
 class Professor(models.Model):
-    professor_code = models.CharField(max_length=5, unique=True)
+    professor_code = models.CharField(max_length=4, unique=True)
     full_name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.full_name  
 
 class Module(models.Model):
-    module_code = models.CharField(max_length=5, unique=True)
+    module_code = models.CharField(max_length=4, unique=True)
     module_name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -17,6 +21,11 @@ class Module(models.Model):
 
 class ModuleInstance(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    
+    # year = models.IntegerField(
+    #     validators=[MinValueValidator(2000), MaxValueValidator(currentYear)]
+    # ) 
+    
     year = models.IntegerField()
     semester = models.IntegerField()
     professors = models.ManyToManyField(Professor)  

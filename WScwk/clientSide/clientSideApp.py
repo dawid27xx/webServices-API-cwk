@@ -52,6 +52,8 @@ def list_instances():
                 f"Semester: {instance['semester']}, "
                 f"Professors: {', '.join([prof['full_name'] for prof in instance['professors']])}"
             )
+    else:
+        print("No Module Instances.")
 
 
 def view_ratings():
