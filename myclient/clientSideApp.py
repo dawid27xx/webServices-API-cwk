@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = "http://127.0.0.1:8000/api"
+BASE_URL = "https://sc22ds.pythonanywhere.com"
 session = requests.Session() 
 
 def register():
@@ -10,7 +10,7 @@ def register():
     password = input("Enter password: ")
 
     data = {"username": username, "email": email, "password": password}
-    response = requests.post(f"{BASE_URL}/register/", json=data)
+    response = requests.post(f"{BASE_URL}/api/register/", json=data)
 
     if handle_response(response):
         print("Registration successful!")
@@ -25,7 +25,7 @@ def login(url):
     BASE_URL = url
 
     data = {"username": username, "password": password}
-    response = session.post(f"{BASE_URL}/login/", json=data)
+    response = session.post(f"{BASE_URL}/api/login/", json=data)
 
     if handle_response(response):
         print("Login successful!")
@@ -33,14 +33,14 @@ def login(url):
 
 def logout():
     global session
-    response = session.post(f"{BASE_URL}/logout/")
+    response = session.post(f"{BASE_URL}/api/logout/")
     data = handle_response(response)  
     if data:
         print("Logged out successfully!")
         session = requests.Session()
 
 def list_instances():
-    response = session.get(f"{BASE_URL}/list/")
+    response = session.get(f"{BASE_URL}/api/list/")
     data = handle_response(response)
 
     if data:
@@ -57,7 +57,7 @@ def list_instances():
 
 
 def view_ratings():
-    response = session.get(f"{BASE_URL}/view/")
+    response = session.get(f"{BASE_URL}/api/view/")
     data = handle_response(response)
 
     if data:
@@ -66,7 +66,7 @@ def view_ratings():
 
 
 def average_rating(professor_id, module_code):
-    response = session.get(f"{BASE_URL}/average/{professor_id}/{module_code}/")
+    response = session.get(f"{BASE_URL}/api/average/{professor_id}/{module_code}/")
     data = handle_response(response)
 
     if data:
@@ -82,7 +82,7 @@ def rate(professor_id, module_code, year, semester, rating):
         "rating": float(rating)
     }
 
-    response = session.post(f"{BASE_URL}/rate/", json=data)
+    response = session.post(f"{BASE_URL}/api/rate/", json=data)
 
     if handle_response(response):
         print("Rating submitted successfully!")
