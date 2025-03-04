@@ -141,9 +141,11 @@ def rateInstance(request):
         if not all([professorId, moduleCode, year, semester, rating]):
             return JsonResponse({"error": "Missing required fields"}, status=400)
 
-        # CHECK FOR INTEGER 
         if not (1 <= rating <= 5):
             return JsonResponse({"error": "Rating must be between 1 and 5"}, status=400)
+        
+        if not rating.is_integer():
+            return JsonResponse({"error": "Rating must be an integer"}, status=400)
 
         professor = Professor.objects.get(professor_code=professorId)
         module = Module.objects.get(module_code=moduleCode)

@@ -10,7 +10,7 @@ class Professor(models.Model):
     full_name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.full_name  
+        return f"{self.full_name} ({self.professor_code})"
 
 class Module(models.Model):
     module_code = models.CharField(max_length=4, unique=True)
