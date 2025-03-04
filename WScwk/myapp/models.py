@@ -21,11 +21,6 @@ class Module(models.Model):
 
 class ModuleInstance(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
-    
-    # year = models.IntegerField(
-    #     validators=[MinValueValidator(2000), MaxValueValidator(currentYear)]
-    # ) 
-    
     year = models.IntegerField()
     semester = models.IntegerField()
     professors = models.ManyToManyField(Professor)  

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from functools import wraps
 from django.db.models import Avg
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,7 +10,25 @@ from .models import Professor, Module, ModuleInstance, Rating
 import json
 
 
+def not_logged_in_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return JsonResponse({"error": "You must be logged out"}, status=403)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+def login_required_no_redirect(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "You must be logged in"}, status=403)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
 @csrf_exempt
+@not_logged_in_required
 def registerUser(request):
     data = json.loads(request.body)
     username = data.get("username")
@@ -31,6 +50,7 @@ def registerUser(request):
 
 
 @csrf_exempt
+@not_logged_in_required
 def loginUser(request):
     data = json.loads(request.body)
     username = data.get("username")
@@ -47,7 +67,7 @@ def loginUser(request):
     else:
         return JsonResponse({"error": "Invalid username or password"}, status=401)
 
-@login_required
+@login_required_no_redirect
 @csrf_exempt
 def logoutUser(request):
     logout(request)
@@ -60,16 +80,11 @@ def listInstances(request):
 
     for instance in instances:
         instance['professors'] = list(Professor.objects.filter(moduleinstance=instance['id']).values('id', 'full_name'))
-        
-    if not instances:
-        return "No Module Instances"
 
     return JsonResponse(list(instances), safe=False, status=200)
 
 
 def viewProfessors(request):
-    # consider a more efficient approach in which a most recent rating
-    # is stored in the professor DB and updated upon a 'rate' call
     professors = Professor.objects.all()
 
     # if not professors.exists(): 
@@ -112,11 +127,11 @@ def avgInstance(request, professorId, moduleCode):
         }, status=200)
 
     except Professor.DoesNotExist:
-        return JsonResponse({"error": "Professor not found"}, status=400)
+        return JsonResponse({"error": "Professor not found"}, status=404)
     except Module.DoesNotExist:
-        return JsonResponse({"error": "Module not found"}, status=400)
+        return JsonResponse({"error": "Module not found"}, status=404)
 
-@login_required
+@login_required_no_redirect
 @csrf_exempt
 def rateInstance(request):
     try:

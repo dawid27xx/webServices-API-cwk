@@ -21,6 +21,9 @@ def login(url):
 
     username = input("Enter username: ")
     password = input("Enter password: ")
+    
+    # for testing, commented out
+    # BASE_URL = url
 
     data = {"username": username, "password": password}
     response = session.post(f"{BASE_URL}/login/", json=data)
@@ -32,12 +35,10 @@ def login(url):
 def logout():
     global session
     response = session.post(f"{BASE_URL}/logout/")
-
-    if response.status_code == 200:
+    data = handle_response(response)  
+    if data:
         print("Logged out successfully!")
-        session = requests.Session() 
-    else:
-        print(f"Error: {response.json()}")
+        session = requests.Session()
 
 def list_instances():
     response = session.get(f"{BASE_URL}/list/")
@@ -91,6 +92,9 @@ def rate(professor_id, module_code, year, semester, rating):
 
 def main():
     while True:
+        
+        # include a 'No connection' options 
+        
         print("\nAvailable commands:\n register\n login <url>\n logout\n list\n view\n average <professor_id> <module_code>\n rate <professor_id> <module_code> <year> <semester> <rating>\n exit")
         command = input("Enter command: ").strip().split() 
 
@@ -133,9 +137,9 @@ def main():
             print("Invalid command. Try again.")
             
 def handle_response(response):
-    if response.status_code == 404: 
-        print("User must be logged in. Please log in using the login <url> command.")
-        return None
+    # if response.status_code == 404: 
+    #     print("User must be logged in. Please log in using the login <url> command.")
+    #     return None
     
     try:
         data = response.json()
