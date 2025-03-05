@@ -1,9 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator
-import datetime
-
-currentYear = datetime.date.today().year
 
 class Professor(models.Model):
     professor_code = models.CharField(max_length=4, unique=True)

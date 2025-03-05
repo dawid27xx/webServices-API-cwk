@@ -10,7 +10,7 @@ def register():
     password = input("Enter password: ")
 
     data = {"username": username, "email": email, "password": password}
-    response = requests.post(f"{BASE_URL}/api/register/", json=data)
+    response = session.post(f"{BASE_URL}/api/register/", json=data)
 
     if handle_response(response):
         print("Registration successful!")
@@ -45,15 +45,17 @@ def list_instances():
 
     if data:
         for instance in data:
+            professors_str = ', '.join(
+                f"{prof['full_name']} ({prof['professor_code']})" for prof in instance['professors']
+            )
             print(
                 f"Code: {instance['module__module_code']}, "
                 f"Name: {instance['module__module_name']}, "
                 f"Year: {instance['year']}, "
                 f"Semester: {instance['semester']}, "
-                f"Taught by: {', '.join([prof['full_name'] for prof in instance['professors']])}"
+                f"Taught by: {professors_str}"
             )
-    else:
-        print("No Module Instances.")
+
 
 
 def view_ratings():
@@ -70,7 +72,10 @@ def average_rating(professor_id, module_code):
     data = handle_response(response)
 
     if data:
-        print(f"The rating of Professor {data['professor']} ({professor_id}) in module {data['module']} is {data['average_rating']}")
+        if data['average_rating']:
+            print(f"The rating of Professor {data['professor']} ({professor_id}) in module {data['module']} ({module_code}) is {data['average_rating']}")
+        else:
+            print(f"No rating of Professor {data['professor']} ({professor_id}) in module {data['module']} ({module_code}).")
 
 
 def rate(professor_id, module_code, year, semester, rating):
@@ -110,6 +115,8 @@ def main():
         elif cmd == "login":
             if len(args) != 1:
                 print("Usage: login <url>")
+            elif not args[0] == "https://sc22ds.pythonanywhere.com":
+                print("Incorrect URL for this application.")
             else:
                 login(args[0])
 

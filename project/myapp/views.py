@@ -1,11 +1,9 @@
-from django.shortcuts import render
 from functools import wraps
 from django.db.models import Avg
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from .models import Professor, Module, ModuleInstance, Rating
 import json
 
@@ -79,16 +77,13 @@ def listInstances(request):
         'id', 'module__module_code', 'module__module_name', 'year', 'semester')
 
     for instance in instances:
-        instance['professors'] = list(Professor.objects.filter(moduleinstance=instance['id']).values('id', 'full_name'))
+        instance['professors'] = list(Professor.objects.filter(moduleinstance=instance['id']).values('id', 'full_name', 'professor_code'))
 
     return JsonResponse(list(instances), safe=False, status=200)
 
 
 def viewProfessors(request):
     professors = Professor.objects.all()
-
-    # if not professors.exists(): 
-    #     return JsonResponse({"message": "No Professors found"}, status=404)
 
     professorRatings = []
 
