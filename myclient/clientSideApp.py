@@ -96,7 +96,7 @@ def rate(professor_id, module_code, year, semester, rating):
 
 def main():
     while True:
-        print("\nAvailable commands:\n register\n login <url>\n logout\n list\n view\n average <professor_id> <module_code>\n rate <professor_id> <module_code> <year> <semester> <rating>\n exit")
+        print("\nAvailable commands:\n register\n login <url>\n logout\n list\n view\n average <professor_code> <module_code>\n rate <professor_code> <module_code> <year> <semester> <rating>\n exit")
         command = input("Enter command: ").strip().split() 
 
         if not command:
@@ -140,13 +140,13 @@ def main():
 
         elif cmd == "average":
             if len(args) != 2:
-                print("Usage: average <professor_id> <module_code>")
+                print("Usage: average <professor_code> <module_code>")
             else:
                 average_rating(args[0], args[1])
 
         elif cmd == "rate":
             if len(args) != 5:
-                print("Usage: rate <professor_id> <module_code> <year> <semester> <rating>")
+                print("Usage: rate <professor_code> <module_code> <year> <semester> <rating>")
             elif not args[4].isdigit():
                 print("Rating must be an integer.")
             elif not args[2].isdigit():
